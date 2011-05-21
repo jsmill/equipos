@@ -1,0 +1,20 @@
+%table
+  %thead
+    %tr
+      - col_methods.each do |h|
+        %th
+          = build_header h 
+  %tfoot
+    %tr
+      /= agreement_table_footer(articulos, table_div) unless articulos.size < 2
+  %tbody#articulos_rows
+    - unless @articulos.empty?
+      - @articulos.each do |o|
+        %tr{:id => "articulo_#{o.id}"}
+          = render :partial => "articulos/articulo", :object => o
+    - else
+      %tr.no-data
+        %td{:colspan => '4'} No hay datos
+
+= will_paginate @articulos
+

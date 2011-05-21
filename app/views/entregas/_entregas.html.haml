@@ -1,0 +1,20 @@
+#overlay{:style => "display:none"}
+%table
+  %thead
+    %tr
+      - col_methods.each do |h|
+        %th
+          = build_sortable_header h 
+  %tfoot
+    %tr
+      /= agreement_table_footer(@entregas, table_div) unless @entregas.size < 2
+  %tbody#entregas_rows
+    - unless @entregas.empty?
+      - @entregas.each do |o|
+        %tr{:id => "entrega_#{o.id}"}
+          = render :partial => "entregas/entrega", :object => o
+    - else
+      %tr.no-data
+        %td{:colspan => '4'} No hay datos
+
+= will_paginate @entregas

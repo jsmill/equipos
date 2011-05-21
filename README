@@ -1,0 +1,39 @@
+The idea is to build an app or apps to enable the following:
+
+1) Provide a convenient way to define the new tables and their relationships
+   (the text files to load must follow this definition)
+   i.e. provide a page that allows user do either/all of:
+        a) Manually speacify table names, field names, and key fields
+        b) Upload db schema in some standard xml format
+        c) Upload exported text files with header data to be used in schema generation;
+            filename, header fieldnames, data type in sample row(s)
+
+2) App automatically creates a Rails app:
+        a) creates a schema.rb file based on 1) above, with additional fields
+           at the end of each table for key fields, and loads the schema
+        b) creates model.rb files with relationships from 1) above
+        c) imports data to tables from any available text files having table name
+        d) sets new f_key values (legacy values imported by c) to extra cols at end)
+NOTE: a) and b) above will be deferred. c) and d) are done.
+
+3) So far, the only thing we've done really is set f_keys using p_key vals in the new db.
+   And we have an ActiveRecord model for each table.
+   To make all this worthwhile, we at least need a front end for the tables and the relationships
+   We'll have to take an opinionated stance on this.
+
+   We recognise table/models as either being or falling under:
+        A) Actors (eg Person, Organisation, Users)
+        B) Articles (eg Product)
+        C) Events (eg Purchase, Delivery)
+        D) Quantity (eg in stock, purchased)
+        E) Reference (lookup values / enums etc)
+  
+  The above takes existing table data as the starting point.
+  A partner application is envisaged that starts with the user defining entities as listed above,
+  through the app's pages, and the app will then generate empty tables based on the choices
+
+  The step in this app, of creating screens for imported tables, can be treated similarly to the
+  partner app that does is before any tables exist. In our case, we still tell the app which of
+  the categories an existing table falls into, so it applies the appropriately themed screen (&
+  appropriate user rights). We can also add new tables through this step, and obviously have to
+  specify all fields and rels for these.

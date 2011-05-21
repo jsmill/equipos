@@ -1,0 +1,11 @@
+th, td{
+white-space: nowrap;
+}
+
+tr.even td{
+background-color:#CCC;
+}
+
+tr.odd td{
+background-color:#EEE;
+}

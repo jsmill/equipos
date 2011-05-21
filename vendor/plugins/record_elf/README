@@ -1,0 +1,88 @@
+RecordElf
+=========
+
+This plugin moves the task of picking table columns for display out of the views and into
+the model and controller and does the heavy lifting of sorting, searching and eager loading records.
+This is a rails 3 plugin making use of ActiveRecord::Relation. Pagination can be used as normal by adding
+ gem 'will_paginate', '~> 3.0.beta'
+to your Gemfile. See example below.
+
+In the most simple case, where no columns are specified for the plugin in the model or controller,
+all columns are available to the views. Helper methods are provided for displaying the data without
+needing any knowledge of the underlying model.
+
+The col_methods helper method is added to your controller by the plugin. You can use this array of method names
+to get the value for each field in a model. Columns that are defined as belongs_to associations in your model
+will use the association rather than the foreign key id. If you define a to_s method in
+each of your parent models the association can be displayed as you want it to be.
+
+The following request parameters are recognised by the plugin's controller instance methods:
+ :sort_method # the name of a method by which to sort your records
+ :sort_direction # the plugin will sort ascending unless this request parameter equals 'DESC' (case insensitive)
+ :search_term # the plugin will provide the subset of records matching this term if you have specified a :search_column when
+  calling acts_as_effable from your model
+
+There are many possible ways to configure the plugin by:
+  - passing parameters to it in the Active Record and Action Controller class methods
+  - globally specifying columns (or prefix/suffices) to be excluded across all models by adding 
+    a record_elf_options hash to your config variable
+  - overwriting controller instance methods provided by the plugin
+
+A simple example is shown below, which covers all the configuration needed for most cases.
+Here the model specifies which columns to display and the controller additionaly specifies columns that are not sortable.
+(Note that the actual column names are passed to the plugin, never the association name)
+
+Example
+=======
+
+class Article < ActiveRecord::Base  
+  acts_as_elfable :columns => [:created_at, :title, :category_id, :telephone, :cellphone], :search_column => :title
+  belongs_to :category
+end
+
+class ArticlesController < ApplicationController
+  acts_as_record_elf :no_sort => ['telephone', 'cellphone']
+  def index
+    @articles = Article.where(:active => true).record_elf(options_elf).paginate(:page => params[:page])
+  end
+ end
+
+app/views/articles/index.html.haml
+----------------------------------
+  %h3 Table of Articles
+  = form_tag articles_path, :method => 'get', :id => 'articles_search' do
+    = hidden_field_tag :sort_direction, params[:sort_direction]
+    = hidden_field_tag :sort_method, params[:sort_method]
+    %p
+      = text_field_tag :search, params[:search]
+      = submit_tag 'Search', :name => nil
+
+#articles
+    = render :partial => 'articles' 
+
+app/views/articles/_articles.html.haml (see build_header in record_elf_helper.rb)
+--------------------------------------
+  %table
+    %thead
+      %tr
+        - col_methods.each do |h|
+          %th
+            = build_header h 
+    %tbody#articles_rows
+      - unless @articles.empty?
+        - @articles.each do |o|
+          %tr{:id => "article_#{o.id}"}
+            = render :partial => "articles/article", :object => o
+      - else
+        %tr.no-data
+          %td{:colspan => '4'} No data
+
+  = will_paginate @articles
+
+app/views/articles/_article.html.haml
+-------------------------------------
+  - col_methods.each do |col|
+    %td= article.send(col)  
+
+
+Copyright (c) 2011 Alan Q, released under the MIT license

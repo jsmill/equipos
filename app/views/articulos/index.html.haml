@@ -1,0 +1,11 @@
+%h3 Table of Things
+
+= form_tag articulos_path, :method => 'get', :id => 'articulos_search' do
+  = hidden_field_tag :sort_direction, params[:sort_direction]
+  = hidden_field_tag :sort_method, params[:sort_method]
+  %p
+    = text_field_tag :search, params[:search]
+    = submit_tag 'Search', :name => nil
+
+#articulos
+  = render :partial => 'articulos' 
